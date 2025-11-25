@@ -1,188 +1,51 @@
-
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Camera, Mic, X, Zap, Loader2, Search } from "lucide-react";
-import { Button } from '@/components/ui/button';
+import { useState, useRef, useEffect } from "react";
+import { Camera, Mic, X, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useRouter } from 'next/navigation';
-import Webcam from 'react-webcam';
-import * as cocoSsd from '@tensorflow-models/coco-ssd';
-import '@tensorflow/tfjs';
-import { toast } from 'sonner';
-import { useStore } from '@/lib/store';
-import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface NewCameraProps {
     onCapture?: (image: string) => void;
 }
 
-export default function NewCamera({
-    onCapture = () => { },
-}: NewCameraProps) {
+export default function NewCamera({ onCapture }: NewCameraProps) {
     const router = useRouter();
-    const webcamRef = useRef<Webcam>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
-    const [isDetecting, setIsDetecting] = useState(true);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [detections, setDetections] = useState<Array<{ label: string; score: number }>>([]);
-
-    const addReport = useStore((state) => state.addReport);
-    const { location, getLocation } = useGeolocation();
+    const [detections, setDetections] = useState<
+        Array<{ label: string; top: number; left: number }>
+    >([]);
+    const [isScanning, setIsScanning] = useState(false);
 
     const onNavigate = (screen: string) => {
         if (screen === 'landing') router.push('/citizen');
         if (screen === 'result') router.push('/citizen/result');
     };
 
-    // Load TensorFlow model
     useEffect(() => {
-        const loadModel = async () => {
-            try {
-                const loadedModel = await cocoSsd.load();
-                setModel(loadedModel);
-                console.log('Object detection model loaded');
-            } catch (error) {
-                console.error('Error loading model:', error);
-            }
-        };
-        loadModel();
-        getLocation(); // Start getting location immediately
-    }, [getLocation]);
+        // Simulate AI detection after 1 second
+        const timer = setTimeout(() => {
+            setIsScanning(true);
+            setTimeout(() => {
+                setDetections([
+                    { label: "Road Hazard", top: 45, left: 35 },
+                    { label: "Pothole Detected", top: 60, left: 30 },
+                ]);
+                setIsScanning(false);
+            }, 1500);
+        }, 1000);
 
-    // Object detection function
-    const detect = useCallback(async () => {
-        if (!webcamRef.current || !canvasRef.current || !model || !webcamRef.current.video) {
-            return;
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleCapture = () => {
+        const mockImage = "https://images.unsplash.com/photo-1761795084688-e6e7ed9b22ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3RyZWV0JTIwdXJiYW4lMjBpbmZyYXN0cnVjdHVyZXxlbnwxfHx8fDE3NjQwOTA4Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080";
+
+        if (onCapture) {
+            onCapture(mockImage);
         }
 
-        const video = webcamRef.current.video;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx || video.readyState !== 4) {
-            return;
-        }
-
-        // Get video properties
-        const videoWidth = video.videoWidth;
-        const videoHeight = video.videoHeight;
-        const displayWidth = video.clientWidth;
-        const displayHeight = video.clientHeight;
-
-        // Set canvas dimensions to match display size
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-
-        // Calculate scaling factors
-        const scaleX = displayWidth / videoWidth;
-        const scaleY = displayHeight / videoHeight;
-
-        // Run detection
-        const predictions = await model.detect(video);
-
-        // Update detections state for UI overlay
-        const currentDetections = predictions.map(p => ({
-            label: p.class,
-            score: p.score
-        }));
-        setDetections(currentDetections);
-
-        // Clear canvas
-        ctx.clearRect(0, 0, displayWidth, displayHeight);
-
-        // Draw bounding boxes
-        predictions.forEach((prediction) => {
-            const x = prediction.bbox[0] * scaleX;
-            const y = prediction.bbox[1] * scaleY;
-            const width = prediction.bbox[2] * scaleX;
-            const height = prediction.bbox[3] * scaleY;
-
-            // Draw box
-            ctx.strokeStyle = '#0A66C2';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, width, height);
-
-            // Draw label background
-            ctx.fillStyle = '#0A66C2';
-            const text = `${prediction.class} ${Math.round(prediction.score * 100)}%`;
-            const textWidth = ctx.measureText(text).width;
-            ctx.fillRect(x, y - 25, textWidth + 10, 25);
-
-            // Draw label text
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '16px Inter';
-            ctx.fillText(text, x + 5, y - 7);
-        });
-
-        if (isDetecting) {
-            requestAnimationFrame(detect);
-        }
-    }, [model, isDetecting]);
-
-    // Start detection loop
-    useEffect(() => {
-        if (isDetecting && model) {
-            detect();
-        }
-    }, [isDetecting, model, detect]);
-
-    const getDepartment = (category: string, description: string) => {
-        const desc = description.toLowerCase();
-        if (category === 'Sanitation' || desc.includes('trash') || desc.includes('garbage') || desc.includes('waste')) return 'Sanitation Bureau';
-        if (category === 'Civic_Infrastructure') {
-            if (desc.includes('water') || desc.includes('leak') || desc.includes('pipe')) return 'Water Board';
-            if (desc.includes('pothole') || desc.includes('crack') || desc.includes('road')) return 'Public Works Dept';
-        }
-        if (category === 'Agriculture' || desc.includes('plant') || desc.includes('crop') || desc.includes('leaf')) return 'Agriculture Extension';
-        return 'General Inquiry';
-    };
-
-    const handleCapture = async () => {
-        if (!webcamRef.current) return;
-
-        const imageSrc = webcamRef.current.getScreenshot();
-        if (!imageSrc) return;
-
-        setIsAnalyzing(true);
-        setIsDetecting(false); // Stop detection during analysis
-
-        try {
-            // Call analysis API
-            const response = await fetch('/api/analyze-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: imageSrc }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Determine department
-                const department = getDepartment(data.category, data.description || '');
-
-                // Add report to store
-                addReport({
-                    image: imageSrc,
-                    category: data.category,
-                    severity: data.severity,
-                    description: data.description || 'Issue detected by AI',
-                    location: location,
-                    department: department,
-                });
-
-                onCapture(imageSrc);
-                onNavigate("result");
-            } else {
-                console.error('Analysis failed:', data.error);
-                toast.error('Analysis failed. Please try again.');
-                setIsDetecting(true); // Resume detection
-            }
-        } catch (error) {
-            console.error('Error calling API:', error);
-            toast.error('Network error. Please check your connection.');
-            setIsDetecting(true); // Resume detection
-        } finally {
-            setIsAnalyzing(false);
-        }
+        // In a real app, we would save the image to store here or pass it via URL/State
+        // For now, we just navigate to result
+        onNavigate("result");
     };
 
     return (
@@ -200,58 +63,71 @@ export default function NewCamera({
                     <div className="text-white text-center">
                         <p className="flex items-center gap-2">
                             <Zap className="w-4 h-4 text-[#0F9D58]" />
-                            AI Vision Active
+                            Point. Tap. Done.
                         </p>
                     </div>
                     <div className="w-10" />
                 </div>
             </div>
 
-            {/* Camera View */}
-            <div className="flex-1 relative overflow-hidden">
-                <Webcam
-                    ref={webcamRef}
-                    audio={false}
-                    screenshotFormat="image/jpeg"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    videoConstraints={{ facingMode: 'environment' }}
-                />
+            {/* Camera View - Mock Preview */}
+            <div className="flex-1 relative">
+                {/* Mock camera preview using a city street image */}
+                <div className="absolute inset-0">
+                    <ImageWithFallback
+                        src="https://images.unsplash.com/photo-1761795084688-e6e7ed9b22ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3RyZWV0JTIwdXJiYW4lMjBpbmZyYXN0cnVjdHVyZXxlbnwxfHx8fDE3NjQwOTA4Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                        alt="Camera preview"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
 
-                <canvas
-                    ref={canvasRef}
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                />
-
-                {/* AI Loading State */}
-                {!model && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                        <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md flex flex-col items-center">
-                            <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-                            <p className="text-white font-medium">Loading AI Model...</p>
+                {/* AI Detection Overlays */}
+                {isScanning && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full max-w-md mx-auto px-6">
+                            <div className="bg-[#0A66C2]/20 border-2 border-[#0A66C2] rounded-2xl p-4 backdrop-blur-sm animate-pulse">
+                                <p className="text-white text-center">
+                                    Scanning with AI...
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
 
+                {detections.map((detection, index) => (
+                    <div
+                        key={index}
+                        className="absolute animate-in fade-in slide-in-from-top-4 duration-500"
+                        style={{
+                            top: `${detection.top}%`,
+                            left: `${detection.left}%`,
+                        }}
+                    >
+                        <div className="bg-[#0A66C2] text-white px-4 py-2 rounded-full shadow-lg border-2 border-white/50">
+                            <p className="whitespace-nowrap">
+                                {detection.label}
+                            </p>
+                        </div>
+                        {/* Bounding Box */}
+                        <div className="absolute top-12 left-0 w-48 h-32 border-2 border-[#0A66C2] rounded-lg animate-pulse" />
+                    </div>
+                ))}
+
                 {/* Scanning Grid Overlay */}
-                {isDetecting && model && (
+                {isScanning && (
                     <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#0A66C2]/5 via-transparent to-[#0A66C2]/5" />
-                        <div className="absolute inset-0 opacity-20"
-                            style={{
-                                backgroundImage: 'linear-gradient(#0A66C2 1px, transparent 1px), linear-gradient(90deg, #0A66C2 1px, transparent 1px)',
-                                backgroundSize: '100px 100px'
-                            }}
-                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#0A66C2]/10 via-transparent to-[#0A66C2]/10 animate-pulse" />
                     </div>
                 )}
             </div>
 
             {/* Bottom Controls */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pb-10 pt-20">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pb-8 pt-12">
                 <div className="flex items-center justify-center gap-12">
                     {/* Voice Button */}
                     <button
-                        className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all border border-white/10"
+                        onClick={() => onNavigate("result")}
+                        className="w-14 h-14 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm transition-all"
                     >
                         <Mic className="w-6 h-6 text-white" />
                     </button>
@@ -259,25 +135,17 @@ export default function NewCamera({
                     {/* Shutter Button */}
                     <button
                         onClick={handleCapture}
-                        disabled={!model || isAnalyzing}
-                        className={`w-24 h-24 rounded-full flex items-center justify-center shadow-2xl transition-all border-4 border-white/30 ${isAnalyzing ? 'bg-white/10 scale-95' : 'bg-white hover:scale-105'
-                            }`}
+                        className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 transition-transform border-4 border-white/50"
                     >
-                        {isAnalyzing ? (
-                            <Loader2 className="w-10 h-10 text-white animate-spin" />
-                        ) : (
-                            <div className="w-20 h-20 bg-[#0A66C2] rounded-full border-4 border-white" />
-                        )}
+                        <div className="w-16 h-16 bg-[#0A66C2] rounded-full" />
                     </button>
 
-                    {/* Gallery Button (Placeholder) */}
-                    <div className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-all border border-white/10">
-                        <Search className="w-6 h-6 text-white" />
-                    </div>
+                    {/* Placeholder for symmetry */}
+                    <div className="w-14 h-14" />
                 </div>
 
-                <p className="text-white/70 text-center mt-6 text-sm font-medium">
-                    {isAnalyzing ? 'Analyzing scene...' : 'Tap to analyze'}
+                <p className="text-white text-center mt-6 opacity-70">
+                    AI detection active
                 </p>
             </div>
         </div>

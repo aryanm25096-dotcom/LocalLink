@@ -1,155 +1,163 @@
-import { CheckCircle, MapPin, Clock, ArrowLeft, Sparkles, AlertTriangle, ChevronRight, Loader2, Home } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { useRouter } from 'next/navigation';
-import { useStore } from '@/lib/store';
-import { useEffect, useState } from 'react';
 
-interface ClassificationResultProps {
-    capturedImage?: string;
-}
-
-export function ClassificationResult({ capturedImage: propImage }: ClassificationResultProps) {
+export function ClassificationResult() {
     const router = useRouter();
-    const reports = useStore((state) => state.reports);
-    const [report, setReport] = useState(reports[0]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        // In a real app, we might pass the ID via query param. 
-        // For now, we assume the latest report is the one we just created.
-        if (reports.length > 0) {
-            setReport(reports[0]);
-        }
-        setIsLoading(false);
-    }, [reports]);
+    // In a real implementation, we would get this from store or context
+    const capturedImage = "https://images.unsplash.com/photo-1761795084688-e6e7ed9b22ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3RyZWV0JTIwdXJiYW4lMjBpbmZyYXN0cnVjdHVyZXxlbnwxfHx8fDE3NjQwOTA4Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080";
 
     const onNavigate = (screen: string) => {
         if (screen === 'camera') router.push('/citizen/report');
         if (screen === 'credits') router.push('/citizen/credits');
-        if (screen === 'landing') router.push('/citizen');
     };
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-white animate-spin" />
-            </div>
-        );
-    }
-
-    if (!report) {
-        return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-white p-6">
-                <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
-                <h2 className="text-xl font-bold mb-2">No Report Found</h2>
-                <p className="text-slate-400 mb-6 text-center">We couldn't find the report details. Please try scanning again.</p>
-                <Button onClick={() => onNavigate('camera')} className="bg-[#0A66C2] hover:bg-[#1B76D1]">
-                    Return to Camera
-                </Button>
-            </div>
-        );
-    }
-
-    // Use prop image if available (e.g. from direct prop usage), otherwise use report image
-    const displayImage = propImage || report.image || '/placeholder.jpg';
-    const categoryName = report.category.replace(/_/g, ' ');
-    const confidence = 98; // Mock confidence as it's not in the store yet
-
     return (
-        <div className="min-h-screen bg-[#020617] text-white relative overflow-hidden pb-20">
-            {/* Full Width Header Image */}
-            <div className="relative w-full h-[40vh]">
-                <ImageWithFallback
-                    src={displayImage}
-                    alt="Captured issue"
-                    className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#020617]" />
-
-                {/* Top Navigation */}
-                <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start">
+        <div className="min-h-screen bg-gradient-to-b from-[#E8F1FB] to-white">
+            {/* Header */}
+            <div className="bg-white shadow-sm">
+                <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-4">
                     <Button
                         onClick={() => onNavigate('camera')}
                         variant="ghost"
-                        className="bg-black/20 hover:bg-black/40 text-white rounded-full p-2 backdrop-blur-md"
+                        className="p-2 hover:bg-[#E8F1FB] rounded-full"
                     >
-                        <ArrowLeft className="w-6 h-6" />
+                        <ArrowLeft className="w-5 h-5" />
                     </Button>
-                    <div className="bg-emerald-500/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg animate-in slide-in-from-top-4">
-                        <CheckCircle className="w-4 h-4 fill-white text-emerald-600" />
-                        <span className="font-bold text-sm tracking-wide uppercase">Analysis Complete</span>
-                    </div>
+                    <h2 className="text-[#0F172A]">Review Report</h2>
                 </div>
             </div>
 
-            {/* Content Container */}
-            <div className="relative -mt-10 px-4 z-10 space-y-4">
-
-                {/* Main Result Card */}
-                <div className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-5 h-5 text-emerald-400" />
-                        <span className="text-emerald-400 font-medium text-sm uppercase tracking-wider">AI Confidence: {confidence}%</span>
+            {/* Content */}
+            <div className="max-w-2xl mx-auto px-6 py-8 space-y-6">
+                {/* Captured Image */}
+                <div className="relative w-full h-[300px] rounded-3xl overflow-hidden shadow-xl">
+                    <ImageWithFallback
+                        src={capturedImage}
+                        alt="Captured issue"
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-[#0F9D58] text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                        <Sparkles className="w-4 h-4" />
+                        <span>AI Analyzed</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">{categoryName}</h1>
-                    <p className="text-slate-400 mb-6">{report.description}</p>
+                </div>
 
-                    {/* Timeline / Status */}
-                    <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
-                        <div className="relative flex gap-4">
-                            <div className="w-6 h-6 rounded-full bg-emerald-500 border-4 border-[#0f172a] z-10 flex-shrink-0" />
+                {/* AI Classification Card */}
+                <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-[#0A66C2] to-[#1B76D1] p-6 text-white">
+                        <div className="flex items-start justify-between mb-4">
                             <div>
-                                <p className="text-white font-medium text-sm">Issue Reported</p>
-                                <p className="text-slate-500 text-xs">Just now</p>
+                                <p className="opacity-90 mb-2">Category Detected</p>
+                                <h3>Road Hazard — Deep Asphalt Crack</h3>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                                <p>High Priority</p>
                             </div>
                         </div>
-                        <div className="relative flex gap-4">
-                            <div className="w-6 h-6 rounded-full bg-blue-500 border-4 border-[#0f172a] z-10 flex-shrink-0 animate-pulse" />
-                            <div>
-                                <p className="text-white font-medium text-sm">Auto-Routed to {report.department}</p>
-                                <p className="text-slate-500 text-xs">Processing...</p>
+
+                        {/* Confidence Bar */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <p className="opacity-90">AI Confidence</p>
+                                <p>91%</p>
+                            </div>
+                            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                                <div className="h-full bg-white rounded-full" style={{ width: '91%' }} />
                             </div>
                         </div>
-                        <div className="relative flex gap-4 opacity-50">
-                            <div className="w-6 h-6 rounded-full bg-slate-700 border-4 border-[#0f172a] z-10 flex-shrink-0" />
+                    </div>
+
+                    {/* Details */}
+                    <div className="p-6 space-y-6">
+                        {/* Auto-Routing */}
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-[#E8F1FB] rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <CheckCircle className="w-6 h-6 text-[#0A66C2]" />
+                            </div>
                             <div>
-                                <p className="text-white font-medium text-sm">Estimated Resolution</p>
-                                <p className="text-slate-500 text-xs">2-3 Days</p>
+                                <p className="text-[#0F172A] mb-1">Auto-Routed To</p>
+                                <p className="text-gray-600">Public Works Department</p>
+                                <p className="text-gray-400 mt-1">Expected response: 2-3 business days</p>
+                            </div>
+                        </div>
+
+                        {/* Location */}
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-[#E8F1FB] rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <MapPin className="w-6 h-6 text-[#0A66C2]" />
+                            </div>
+                            <div>
+                                <p className="text-[#0F172A] mb-1">Location</p>
+                                <p className="text-gray-600">1247 Market St, San Francisco</p>
+                                <p className="text-gray-400 mt-1">Coordinates: 37.7749° N, 122.4194° W</p>
+                            </div>
+                        </div>
+
+                        {/* Timestamp */}
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-[#E8F1FB] rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <Clock className="w-6 h-6 text-[#0A66C2]" />
+                            </div>
+                            <div>
+                                <p className="text-[#0F172A] mb-1">Reported</p>
+                                <p className="text-gray-600">Today at 2:34 PM</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Location Card */}
-                <div className="bg-[#0f172a] border border-white/10 rounded-3xl p-4 shadow-lg flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 flex-shrink-0">
-                        <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <p className="text-slate-400 text-xs uppercase tracking-wide">Location</p>
-                        <p className="text-white font-medium text-sm">
-                            {report.location ? `${report.location.lat.toFixed(4)}, ${report.location.lng.toFixed(4)}` : 'Location not available'}
-                        </p>
-                    </div>
+                {/* AI Model Attribution */}
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
+                    <p className="text-center text-gray-500">
+                        Identified using <span className="text-[#0A66C2]">Gemini Vision</span> •
+                        Processed in 1.2s • Carbon neutral inference
+                    </p>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="flex flex-col gap-3">
                     <Button
                         onClick={() => onNavigate('credits')}
-                        className="h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold shadow-lg shadow-blue-900/20"
+                        className="w-full bg-[#0A66C2] hover:bg-[#1B76D1] text-white rounded-full py-6 shadow-lg"
                     >
-                        Track Status
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Confirm & Send Report
                     </Button>
                     <Button
-                        onClick={() => onNavigate('landing')}
+                        onClick={() => onNavigate('camera')}
                         variant="outline"
-                        className="h-14 border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold"
+                        className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-full py-6"
                     >
-                        <Home className="w-5 h-5 mr-2" />
-                        Back Home
+                        Retake Photo
                     </Button>
+                </div>
+
+                {/* Info Box */}
+                <div className="bg-[#E8F1FB] rounded-2xl p-6">
+                    <p className="text-gray-700 mb-2">
+                        What happens next?
+                    </p>
+                    <ul className="space-y-2 text-gray-600">
+                        <li className="flex items-start gap-2">
+                            <span className="text-[#0A66C2] mt-1">•</span>
+                            <span>Your report is verified by our AI system</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-[#0A66C2] mt-1">•</span>
+                            <span>The city department receives instant notification</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-[#0A66C2] mt-1">•</span>
+                            <span>You'll receive updates as work progresses</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-[#0A66C2] mt-1">•</span>
+                            <span>Earn Green Credits when the issue is resolved</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

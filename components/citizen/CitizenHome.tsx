@@ -1,96 +1,136 @@
-import React from 'react';
-import Link from 'next/link';
-import { TriangleAlert, Trash2, Droplets, Lightbulb, Home, Camera, FileText, User } from 'lucide-react';
-import { useStore } from '@/lib/store';
+import { Camera, Mic, Droplets, Construction, Lightbulb, Trash2, PawPrint, Home, User } from 'lucide-react';
+import { ImageWithFallback } from '@/components/ui/image-with-fallback';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function CitizenHome() {
-    const { reports, credits } = useStore();
+    const router = useRouter();
 
-    const services = [
-        { name: 'Report Pothole', icon: TriangleAlert, color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20', href: '/citizen/report' },
-        { name: 'Garbage Pickup', icon: Trash2, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', href: '/citizen/report' },
-        { name: 'Water Leak', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', href: '/citizen/report' },
-        { name: 'Street Light', icon: Lightbulb, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', href: '/citizen/report' },
+    const onNavigate = (screen: string) => {
+        if (screen === 'camera') router.push('/citizen/report');
+        if (screen === 'manual') router.push('/citizen/manual');
+        if (screen === 'history') router.push('/citizen/history');
+        if (screen === 'profile') router.push('/citizen/profile');
+        if (screen === 'landing') router.push('/citizen');
+    };
+
+    const quickAccessCategories = [
+        { icon: Construction, label: 'Pothole', color: 'bg-orange-50 text-orange-600' },
+        { icon: Trash2, label: 'Garbage', color: 'bg-green-50 text-green-600' },
+        { icon: Droplets, label: 'Water Leak', color: 'bg-blue-50 text-blue-600' },
+        { icon: Lightbulb, label: 'Streetlight', color: 'bg-yellow-50 text-yellow-600' },
+        { icon: PawPrint, label: 'Stray Animals', color: 'bg-purple-50 text-purple-600' },
     ];
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white pb-24">
-            {/* Header */}
-            <header className="p-6 pb-2 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold">Citizen Services</h1>
-                    <p className="text-slate-400 text-sm">Welcome back</p>
+        <div className="min-h-screen bg-white">
+            {/* Floating Navigation */}
+            <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b border-gray-100">
+                <h1 className="text-[#0A66C2]">LocalLink</h1>
+                <div className="flex items-center gap-6">
+                    <button onClick={() => onNavigate('landing')} className="p-2 text-[#0A66C2] hover:bg-[#E8F1FB] rounded-full transition-colors">
+                        <Home className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => onNavigate('camera')} className="p-2 text-gray-600 hover:bg-[#E8F1FB] rounded-full transition-colors">
+                        <Camera className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => onNavigate('profile')} className="p-2 text-gray-600 hover:bg-[#E8F1FB] rounded-full transition-colors">
+                        <User className="w-5 h-5" />
+                    </button>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full">
-                    <span className="text-green-400 text-sm font-medium">{credits || 0} Credits</span>
-                </div>
-            </header>
+            </nav>
 
-            {/* Quick Access Grid */}
-            <section className="p-6">
-                <h2 className="text-sm font-medium text-slate-400 mb-4 uppercase tracking-wider">Quick Access</h2>
-                <div className="grid grid-cols-2 gap-4">
-                    {services.map((service) => (
-                        <Link href={service.href} key={service.name} className={`p-4 rounded-2xl border ${service.border} ${service.bg} flex flex-col items-center justify-center gap-3 aspect-square active:scale-95 transition-transform`}>
-                            <div className={`p-3 rounded-full bg-white/5 ${service.color}`}>
-                                <service.icon size={28} />
-                            </div>
-                            <span className="font-medium text-slate-200 text-sm text-center">{service.name}</span>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
-            {/* Recent Activity */}
-            <section className="px-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Recent Reports</h2>
-                </div>
-                <div className="space-y-3">
-                    {reports.length === 0 ? (
-                        <div className="p-6 text-center border border-dashed border-slate-800 rounded-xl">
-                            <p className="text-slate-500 text-sm">No reports yet</p>
-                        </div>
-                    ) : (
-                        reports.slice(0, 3).map((report: any) => (
-                            <div key={report.id} className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl flex items-center justify-between">
+            {/* Hero Section */}
+            <section className="pt-20 pb-12 px-6">
+                <div className="max-w-2xl mx-auto">
+                    {/* Hero Image */}
+                    <div className="relative w-full h-[400px] rounded-3xl overflow-hidden mb-8 shadow-2xl">
+                        <ImageWithFallback
+                            src="https://images.unsplash.com/photo-1761795084688-e6e7ed9b22ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3RyZWV0JTIwdXJiYW4lMjBpbmZyYXN0cnVjdHVyZXxlbnwxfHx8fDE3NjQwOTA4Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                            alt="City street"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                        <div className="absolute bottom-6 left-6 right-6">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center">
-                                        <Camera size={18} className="text-slate-400" />
+                                    <div className="w-12 h-12 bg-[#0A66C2] rounded-full flex items-center justify-center">
+                                        <Camera className="w-6 h-6 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="font-medium text-sm text-slate-200">{report.category}</h3>
-                                        <p className="text-xs text-slate-500">{new Date(report.timestamp).toLocaleDateString()}</p>
+                                        <p className="text-[#0F172A]">Quick Report</p>
+                                        <p className="text-gray-500">Point, Tap, Done</p>
                                     </div>
                                 </div>
-                                <span className="text-xs px-2 py-1 rounded bg-yellow-500/10 text-yellow-500 font-medium capitalize">
-                                    {report.status}
-                                </span>
                             </div>
-                        ))
-                    )}
+                        </div>
+                    </div>
+
+                    {/* Tagline */}
+                    <div className="text-center mb-10">
+                        <h2 className="text-[#0F172A] mb-3">
+                            Report Problems in 5 Seconds — Let AI Handle the Rest.
+                        </h2>
+                        <p className="text-gray-600">
+                            Civic reporting powered by AI. Your city, safer and cleaner.
+                        </p>
+                    </div>
+
+                    {/* Primary CTAs */}
+                    <div className="flex flex-col sm:flex-row gap-4 mb-16">
+                        <Button
+                            onClick={() => onNavigate('camera')}
+                            className="flex-1 bg-[#0A66C2] hover:bg-[#1B76D1] text-white rounded-full py-6 shadow-lg hover:shadow-xl transition-all"
+                        >
+                            <Camera className="w-5 h-5 mr-2" />
+                            Report with Camera
+                        </Button>
+                        <Button
+                            onClick={() => onNavigate('camera')}
+                            variant="outline"
+                            className="flex-1 border-2 border-[#0A66C2] text-[#0A66C2] hover:bg-[#E8F1FB] rounded-full py-6"
+                        >
+                            <Mic className="w-5 h-5 mr-2" />
+                            Speak to Report
+                        </Button>
+                    </div>
+
+                    {/* Quick Access Categories */}
+                    <div className="mb-8">
+                        <h3 className="text-[#0F172A] mb-6">Quick Access</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {quickAccessCategories.map((category, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => onNavigate('camera')}
+                                    className="flex flex-col items-center gap-3 p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg hover:border-[#0A66C2] transition-all group"
+                                >
+                                    <div className={`w-14 h-14 ${category.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                                        <category.icon className="w-7 h-7" />
+                                    </div>
+                                    <span className="text-[#0F172A]">{category.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Stats Section */}
+                    <div className="grid grid-cols-3 gap-4 p-6 bg-gradient-to-br from-[#E8F1FB] to-white rounded-2xl">
+                        <div className="text-center">
+                            <div className="text-[#0A66C2] mb-1">12,847</div>
+                            <p className="text-gray-600">Reports Filed</p>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-[#0A66C2] mb-1">9,234</div>
+                            <p className="text-gray-600">Issues Resolved</p>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-[#0A66C2] mb-1">4.2 Days</div>
+                            <p className="text-gray-600">Avg. Response</p>
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            {/* Bottom Nav */}
-            <nav className="fixed bottom-0 w-full bg-[#020617]/90 backdrop-blur-xl border-t border-white/5 pb-6 pt-2 px-6 flex justify-between items-center z-50">
-                <Link href="/citizen" className="flex flex-col items-center gap-1 text-blue-500">
-                    <Home size={24} />
-                    <span className="text-[10px] font-medium">Home</span>
-                </Link>
-                <Link href="/citizen/report" className="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
-                    <Camera size={24} />
-                    <span className="text-[10px] font-medium">Camera</span>
-                </Link>
-                <Link href="/citizen/manual" className="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
-                    <FileText size={24} />
-                    <span className="text-[10px] font-medium">Manual</span>
-                </Link>
-                <Link href="/citizen/profile" className="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
-                    <User size={24} />
-                    <span className="text-[10px] font-medium">Profile</span>
-                </Link>
-            </nav>
         </div>
     );
 }
