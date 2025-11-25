@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { BentoCard } from '@/components/ui/BentoCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -83,10 +84,10 @@ export default function ManualReportPage() {
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Manual Report</h1>
             </div>
 
-            <Card className="backdrop-blur-md bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 shadow-lg">
+            <BentoCard className="shadow-lg">
                 <CardHeader>
-                    <CardTitle>Report an Issue</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-amber-500">Report an Issue</CardTitle>
+                    <CardDescription className="text-slate-400">
                         Fill out the details below to submit a report manually.
                     </CardDescription>
                 </CardHeader>
@@ -95,14 +96,14 @@ export default function ManualReportPage() {
 
                         {/* Category Selection */}
                         <div className="space-y-2">
-                            <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category" className="text-amber-500 font-semibold">Category</Label>
                             <Select value={category} onValueChange={setCategory}>
-                                <SelectTrigger id="category" className="bg-white dark:bg-slate-950">
+                                <SelectTrigger id="category" className="bg-neutral-900 border-neutral-800 text-slate-200 focus:border-amber-500/50 focus:ring-amber-500/20">
                                     <SelectValue placeholder="Select a category" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-neutral-900 border-neutral-800 text-slate-200">
                                     {CATEGORIES.map((cat) => (
-                                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                        <SelectItem key={cat} value={cat} className="focus:bg-amber-500/20 focus:text-amber-500">{cat}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -111,7 +112,7 @@ export default function ManualReportPage() {
                         {/* Severity Slider */}
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <Label>Severity Level: {severity[0]}</Label>
+                                <Label className="text-amber-500 font-semibold">Severity Level: {severity[0]}</Label>
                                 <span className="text-xs text-slate-500">
                                     {severity[0] <= 3 ? 'Low' : severity[0] <= 7 ? 'Medium' : 'Critical'}
                                 </span>
@@ -124,7 +125,7 @@ export default function ManualReportPage() {
                                 step={1}
                                 className="py-2"
                             />
-                            <div className="flex justify-between text-xs text-slate-400 px-1">
+                            <div className="flex justify-between text-xs text-slate-500 px-1">
                                 <span>Low</span>
                                 <span>Critical</span>
                             </div>
@@ -132,27 +133,27 @@ export default function ManualReportPage() {
 
                         {/* Description */}
                         <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
+                            <Label htmlFor="description" className="text-amber-500 font-semibold">Description</Label>
                             <Textarea
                                 id="description"
                                 placeholder="Describe the issue in detail..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="min-h-[120px] bg-white dark:bg-slate-950 resize-none"
+                                className="min-h-[120px] resize-none bg-neutral-900 border-neutral-800 text-slate-200 focus:border-amber-500/50 focus:ring-amber-500/20 placeholder:text-neutral-600"
                             />
                         </div>
 
                         {/* Location */}
                         <div className="space-y-2">
-                            <Label>Location</Label>
-                            <div className="flex items-center gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                                    <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            <Label className="text-amber-500 font-semibold">Location</Label>
+                            <div className="flex items-center gap-4 p-4 rounded-lg border border-neutral-800 bg-neutral-900">
+                                <div className="p-2 bg-amber-500/10 rounded-full">
+                                    <MapPin className="w-5 h-5 text-amber-500" />
                                 </div>
                                 <div className="flex-1">
                                     {location ? (
                                         <div className="text-sm">
-                                            <p className="font-medium text-green-600">Location Locked</p>
+                                            <p className="font-medium text-emerald-400">Location Locked</p>
                                             <p className="text-slate-500 text-xs">Lat: {location.lat.toFixed(4)}, Lng: {location.lng.toFixed(4)}</p>
                                         </div>
                                     ) : (
@@ -161,11 +162,12 @@ export default function ManualReportPage() {
                                 </div>
                                 <Button
                                     type="button"
-                                    variant="outline"
                                     size="sm"
                                     onClick={getLocation}
                                     disabled={geoLoading || !!location}
-                                    className={location ? "border-green-200 text-green-600 bg-green-50" : ""}
+                                    className={location
+                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                        : "bg-cyan-500 text-black hover:bg-cyan-400 font-bold shadow-lg shadow-cyan-500/20"}
                                 >
                                     {geoLoading ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -176,13 +178,13 @@ export default function ManualReportPage() {
                                     )}
                                 </Button>
                             </div>
-                            {geoError && <p className="text-xs text-red-500 mt-1">{geoError}</p>}
+                            {geoError && <p className="text-xs text-red-400 mt-1">{geoError}</p>}
                         </div>
 
                         {/* Submit Button */}
                         <Button
                             type="submit"
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-lg shadow-lg shadow-blue-500/20"
+                            className="w-full h-12 text-lg"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
@@ -200,7 +202,7 @@ export default function ManualReportPage() {
 
                     </form>
                 </CardContent>
-            </Card>
+            </BentoCard>
         </div>
     );
 }

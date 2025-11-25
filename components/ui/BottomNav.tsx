@@ -40,7 +40,7 @@ export default function BottomNav() {
                             'flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-300',
                             item.active
                                 ? 'bg-white/10 text-cyan-400 scale-110'
-                                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                                : 'text-slate-300 hover:text-white hover:bg-white/5'
                         )}
                     >
                         <item.icon className={cn("w-6 h-6", item.active && "fill-cyan-400/20")} />
