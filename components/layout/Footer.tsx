@@ -49,7 +49,7 @@ export function Footer() {
             </div>
 
             <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/5 text-center text-slate-600 text-xs">
-                © 2025 LocalLink AI. All rights reserved.
+                © 2025 LocalLink. Built for Smart Cities.
             </div>
         </footer>
     );

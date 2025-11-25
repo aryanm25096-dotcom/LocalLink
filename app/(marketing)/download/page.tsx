@@ -3,9 +3,9 @@ import { Smartphone } from 'lucide-react';
 export default function DownloadPage() {
     return (
         <div className="px-6 py-20 max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-white mb-8">Get LocalLink AI</h1>
+            <h1 className="text-5xl font-bold text-white mb-8">Download LocalLink & <br /> Fix Your City</h1>
             <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
-                Available now on iOS and Android. Start making a difference in your city today.
+                Join thousands of citizens making a difference. Available now on iOS and Android.
             </p>
 
             <div className="flex flex-col md:flex-row gap-6 justify-center mb-20">
@@ -28,8 +28,11 @@ export default function DownloadPage() {
 
             <div className="relative w-64 h-[500px] mx-auto bg-black border-8 border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl" />
-                <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl">
-                    App Preview
+                <div className="w-full h-full bg-[#020617] flex flex-col items-center justify-center text-white">
+                    <div className="w-16 h-16 bg-blue-600 rounded-2xl mb-4 flex items-center justify-center">
+                        <Smartphone className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-bold text-xl">LocalLink AI</h3>
                 </div>
             </div>
         </div>
