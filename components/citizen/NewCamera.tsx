@@ -10,13 +10,13 @@ import { toast } from 'sonner';
 import { useStore } from '@/lib/store';
 import { useGeolocation } from '@/hooks/useGeolocation';
 
-interface CameraScreenProps {
+interface NewCameraProps {
     onCapture?: (image: string) => void;
 }
 
-export function CameraScreen({
+export default function NewCamera({
     onCapture = () => { },
-}: CameraScreenProps) {
+}: NewCameraProps) {
     const router = useRouter();
     const webcamRef = useRef<Webcam>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);

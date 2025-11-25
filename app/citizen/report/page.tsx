@@ -1,7 +1,7 @@
 'use client';
 
-import { CameraScreen } from '@/components/citizen/NewCamera';
+import NewCamera from '@/components/citizen/NewCamera';
 
 export default function ReportPage() {
-    return <CameraScreen />;
+    return <NewCamera />;
 }
