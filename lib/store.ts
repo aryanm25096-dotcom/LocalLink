@@ -19,6 +19,7 @@ export interface Report {
 interface Store {
     reports: Report[];
     credits: number;
+    userPoints: number;
     addReport: (report: Omit<Report, 'id' | 'timestamp' | 'status'>) => void;
     updateStatus: (id: string, status: Report['status']) => void;
     addPoints: (amount: number) => void;
@@ -30,6 +31,7 @@ export const useStore = create<Store>()(
         (set) => ({
             reports: [],
             credits: 0,
+            userPoints: 0,
             addReport: (report) =>
                 set((state) => ({
                     reports: [
@@ -56,10 +58,14 @@ export const useStore = create<Store>()(
                             report.id === id ? { ...report, status } : report
                         ),
                         credits: state.credits + pointsToAdd,
+                        userPoints: state.userPoints + pointsToAdd,
                     };
                 }),
-            addPoints: (amount) => set((state) => ({ credits: state.credits + amount })),
-            resetStore: () => set({ reports: [], credits: 0 }),
+            addPoints: (amount) => set((state) => ({
+                credits: state.credits + amount,
+                userPoints: state.userPoints + amount
+            })),
+            resetStore: () => set({ reports: [], credits: 0, userPoints: 0 }),
         }),
         {
             name: 'locallink-storage',
