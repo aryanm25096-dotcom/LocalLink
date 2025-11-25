@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: Request) {
+    console.log("1. API Route hit. Starting analysis...");
+    console.log("2. Key Check:", process.env.GEMINI_API_KEY ? "Key exists (" + process.env.GEMINI_API_KEY.slice(0, 5) + "...)" : "KEY IS MISSING");
+
     try {
         const { image } = await req.json();
 
@@ -37,6 +40,8 @@ export async function POST(req: Request) {
 
         const response = await result.response;
         const text = response.text();
+        
+        console.log("3. Google Response received");
 
         // Clean up markdown code blocks if present
         const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -44,11 +49,9 @@ export async function POST(req: Request) {
         const data = JSON.parse(cleanText);
 
         return NextResponse.json(data);
-    } catch (error) {
-        console.error('Error analyzing image:', error);
-        return NextResponse.json(
-            { error: 'Failed to analyze image', details: error instanceof Error ? error.message : String(error) },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("CRITICAL GOOGLE ERROR:", error.message);
+        console.error("Full Error:", JSON.stringify(error, null, 2));
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

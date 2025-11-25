@@ -6,7 +6,7 @@ import { Trophy, Star, Shield, Leaf } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export default function ProfileCard() {
-    const userPoints = useStore((state) => state.userPoints);
+    const credits = useStore((state) => state.credits);
 
     const getRank = (points: number) => {
         if (points >= 500) return { title: 'Eco-Warrior', icon: Shield, color: 'text-emerald-500', next: 1000 };
@@ -14,8 +14,8 @@ export default function ProfileCard() {
         return { title: 'Observer', icon: Leaf, color: 'text-green-600', next: 100 };
     };
 
-    const rank = getRank(userPoints);
-    const progress = Math.min(100, (userPoints / rank.next) * 100);
+    const rank = getRank(credits);
+    const progress = Math.min(100, (credits / rank.next) * 100);
 
     return (
         <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-none shadow-lg mb-6 overflow-hidden">
@@ -27,7 +27,7 @@ export default function ProfileCard() {
                     <div>
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Green Credits</p>
                         <h2 className="text-4xl font-black bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">
-                            {userPoints}
+                            {credits}
                         </h2>
                     </div>
                     <div className={`flex flex-col items-end ${rank.color}`}>
@@ -39,7 +39,7 @@ export default function ProfileCard() {
                 <div className="space-y-2">
                     <div className="flex justify-between text-xs font-medium text-slate-500">
                         <span>Progress to next rank</span>
-                        <span>{userPoints} / {rank.next}</span>
+                        <span>{credits} / {rank.next}</span>
                     </div>
                     <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div

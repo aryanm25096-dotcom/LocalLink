@@ -10,6 +10,8 @@ import { useStore } from '@/lib/store';
 import { toast } from 'sonner';
 import VoiceInput from './citizen/VoiceInput';
 import { Textarea } from '@/components/ui/textarea';
+import * as cocoSsd from '@tensorflow-models/coco-ssd';
+import '@tensorflow/tfjs';
 
 type AnalysisResult = {
     category: 'Agriculture' | 'Civic_Infrastructure' | 'Sanitation' | 'Unknown';
@@ -19,17 +21,109 @@ type AnalysisResult = {
 
 export default function SmartCamera() {
     const webcamRef = useRef<Webcam>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const { location, error: geoError, loading: geoLoading, getLocation } = useGeolocation();
     const addReport = useStore((state) => state.addReport);
     const [editedDescription, setEditedDescription] = useState('');
+    const [model, setModel] = useState<cocoSsd.ObjectDetection | null>(null);
+    const [isDetecting, setIsDetecting] = useState(false);
 
     useEffect(() => {
         if (result) {
             setEditedDescription(result.description);
         }
     }, [result]);
+
+    // Load TensorFlow model on mount
+    useEffect(() => {
+        const loadModel = async () => {
+            try {
+                const loadedModel = await cocoSsd.load();
+                setModel(loadedModel);
+                console.log('Object detection model loaded');
+            } catch (error) {
+                console.error('Error loading model:', error);
+            }
+        };
+        loadModel();
+    }, []);
+
+    // Object detection function with proper scaling
+    const detect = useCallback(async () => {
+        if (!webcamRef.current || !canvasRef.current || !model || !webcamRef.current.video) {
+            return;
+        }
+
+        const video = webcamRef.current.video;
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx || video.readyState !== 4) {
+            return;
+        }
+
+        // Get the actual displayed size
+        const displayWidth = video.clientWidth;
+        const displayHeight = video.clientHeight;
+
+        // Get the original video size
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+
+        // Calculate scale factors
+        const scaleX = displayWidth / videoWidth;
+        const scaleY = displayHeight / videoHeight;
+
+        // Set canvas size to match display size
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+
+        // Run detection
+        const predictions = await model.detect(video);
+
+        // Clear previous drawings
+        ctx.clearRect(0, 0, displayWidth, displayHeight);
+
+        // Draw bounding boxes with scaled coordinates
+        predictions.forEach((prediction) => {
+            // Apply scale factors to coordinates
+            const x = prediction.bbox[0] * scaleX;
+            const y = prediction.bbox[1] * scaleY;
+            const width = prediction.bbox[2] * scaleX;
+            const height = prediction.bbox[3] * scaleY;
+
+            // Draw bounding box
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+
+            // Draw label background
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(x, y - 20, width, 20);
+
+            // Draw label text
+            ctx.fillStyle = '#000000';
+            ctx.font = '14px Arial';
+            ctx.fillText(
+                `${prediction.class} (${Math.round(prediction.score * 100)}%)`,
+                x + 4,
+                y - 5
+            );
+        });
+
+        if (isDetecting) {
+            requestAnimationFrame(detect);
+        }
+    }, [model, isDetecting]);
+
+    // Start/stop detection loop
+    useEffect(() => {
+        if (isDetecting && model) {
+            detect();
+        }
+    }, [isDetecting, model, detect]);
 
     const handleVoiceResult = (text: string) => {
         setEditedDescription((prev) => prev ? `${prev} ${text}` : text);
@@ -135,8 +229,35 @@ export default function SmartCamera() {
                 videoConstraints={{ facingMode: 'environment' }}
             />
 
+            {/* Canvas overlay for object detection */}
+            <canvas
+                ref={canvasRef}
+                className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            />
+
             {/* Overlay UI */}
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-6">
+
+                {/* Object Detection Toggle */}
+                <div className="absolute top-4 right-4 pointer-events-auto">
+                    <Button
+                        size="sm"
+                        onClick={() => setIsDetecting(!isDetecting)}
+                        disabled={!model}
+                        className={`rounded-full ${isDetecting ? 'bg-green-500 hover:bg-green-600' : 'bg-white/20 hover:bg-white/30'} backdrop-blur-md border border-white/40 text-white font-bold shadow-lg transition-all`}
+                    >
+                        {!model ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Loading...
+                            </>
+                        ) : isDetecting ? (
+                            'Detection ON'
+                        ) : (
+                            'Detection OFF'
+                        )}
+                    </Button>
+                </div>
 
                 {/* Result Card */}
                 {result && (

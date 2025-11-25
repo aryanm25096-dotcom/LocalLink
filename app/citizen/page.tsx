@@ -3,148 +3,99 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Clock, Award, ArrowRight } from 'lucide-react';
+import { Camera, FileText, Award, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import SmartCamera from '@/components/SmartCamera';
-import ProfileCard from '@/components/citizen/ProfileCard';
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useStore } from '@/lib/store';
 
 export default function CitizenPage() {
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const credits = useStore((state) => state.credits);
 
   return (
-    <div className="min-h-screen p-6 pb-24 space-y-8">
-      <header className="flex justify-between items-center mb-4">
+    <div className="min-h-screen p-6 pb-32 space-y-8 bg-slate-950 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]">
+      <header className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Welcome, Citizen</h1>
-          <p className="text-slate-600 dark:text-slate-300">Access your civic services below</p>
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 tracking-tight">LocalLink</h1>
+          <p className="text-slate-400 mt-1">Empowering Citizens</p>
         </div>
-        <Button
-          variant="outline"
-          className="rounded-full"
-          onClick={() => setShowProfileModal(true)}
-        >
-          Profile
-        </Button>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <Award className="w-5 h-5 text-emerald-400" />
+          <span className="text-emerald-400 font-bold">{credits} Credits</span>
+        </div>
       </header>
 
-      {/* Profile Modal */}
-      <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Your Profile</DialogTitle>
-          </DialogHeader>
-          <ProfileCard />
-        </DialogContent>
-      </Dialog>
-
       {/* Main Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Report Issue - Primary Large Card */}
+      <div className="grid grid-cols-1 gap-6">
+
+        {/* Report Issue Card (Primary) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0 }}
-          className="md:col-span-2"
         >
-          <Card className="h-full relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-blue-500/90 to-blue-600/90 dark:from-blue-600/90 dark:to-blue-700/90 border-white/20 shadow-xl hover:shadow-2xl transition-all cursor-pointer group">
-            <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-white/10 blur-3xl group-hover:blur-2xl transition-all" />
+          <Link href="/citizen/report">
+            <Card className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all group cursor-pointer shadow-2xl shadow-blue-900/10">
+              <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-blue-500/20 blur-[100px] group-hover:bg-blue-500/30 transition-all" />
 
-            <CardHeader className="relative z-10">
-              <div className="p-4 w-fit rounded-2xl bg-white/20 mb-4">
-                <Camera className="w-10 h-10 text-white" />
+              <div className="relative z-10 flex flex-col items-center text-center space-y-6">
+                <div className="p-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
+                  <Camera className="w-12 h-12 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">Report Issue</h2>
+                  <p className="text-slate-300 text-lg max-w-xs mx-auto">Use AI to instantly analyze and report civic issues.</p>
+                </div>
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 font-bold rounded-full px-8 shadow-lg">
+                  Open Camera <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
               </div>
-              <CardTitle className="text-3xl text-white mb-2">Report an Issue</CardTitle>
-              <CardDescription className="text-blue-50 text-lg">
-                Use AI-powered camera to report civic or agricultural issues instantly
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="relative z-10">
-              <Button
-                variant="secondary"
-                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold"
-                onClick={() => {
-                  // Scroll to SmartCamera section
-                  document.getElementById('smart-camera')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                Start Reporting
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
+            </Card>
+          </Link>
         </motion.div>
 
-        {/* My History Card */}
+        {/* Offline Form Card (Secondary) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Link href="/citizen/history">
-            <Card className="h-full relative overflow-hidden backdrop-blur-md bg-white/40 dark:bg-slate-900/40 border-white/20 dark:border-slate-700/30 shadow-xl hover:shadow-2xl transition-all cursor-pointer group">
-              <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-green-100/50 dark:bg-green-500/20 blur-2xl group-hover:blur-3xl transition-all" />
-
-              <CardHeader className="relative z-10">
-                <div className="p-3 w-fit rounded-xl bg-green-100/50 dark:bg-green-500/20 mb-2">
-                  <Clock className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <Link href="/citizen/manual">
+            <Card className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all group cursor-pointer">
+              <div className="flex items-center gap-6">
+                <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition-colors">
+                  <FileText className="w-8 h-8 text-cyan-400" />
                 </div>
-                <CardTitle className="text-xl">My History</CardTitle>
-                <CardDescription className="text-base">
-                  View your submitted reports and their status
-                </CardDescription>
-              </CardHeader>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">Offline Form</h3>
+                  <p className="text-slate-400">Submit a detailed report manually</p>
+                </div>
+                <ArrowRight className="w-6 h-6 text-slate-500 group-hover:text-white transition-colors" />
+              </div>
             </Card>
           </Link>
         </motion.div>
 
-        {/* Green Credits Card */}
+        {/* Status Section: My Impact */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="md:col-span-3"
         >
-          <Card
-            className="relative overflow-hidden backdrop-blur-md bg-gradient-to-r from-emerald-500/90 to-teal-600/90 dark:from-emerald-600/90 dark:to-teal-700/90 border-white/20 shadow-xl hover:shadow-2xl transition-all cursor-pointer group"
-            onClick={() => setShowProfileModal(true)}
-          >
-            <div className="absolute -right-12 -bottom-12 w-48 h-48 rounded-full bg-white/10 blur-3xl group-hover:blur-2xl transition-all" />
-
-            <CardHeader className="relative z-10">
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-slate-300 mb-4 px-1">My Impact</h3>
+            <Card className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 backdrop-blur-xl border border-emerald-500/20 rounded-2xl p-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 w-fit rounded-xl bg-white/20">
-                    <Award className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl text-white mb-1">Green Credits</CardTitle>
-                    <CardDescription className="text-emerald-50">
-                      Earn rewards for helping your community
-                    </CardDescription>
-                  </div>
+                <div>
+                  <p className="text-emerald-400 font-medium mb-1">Green Credits Score</p>
+                  <p className="text-4xl font-bold text-white">{credits}</p>
                 </div>
-                <Button
-                  variant="secondary"
-                  className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold"
-                >
-                  View Profile
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 flex items-center justify-center">
+                  <Award className="w-8 h-8 text-emerald-400" />
+                </div>
               </div>
-            </CardHeader>
-          </Card>
+            </Card>
+          </div>
         </motion.div>
-      </div>
 
-      {/* Smart Camera Section */}
-      <div id="smart-camera" className="scroll-mt-6">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">
-          AI-Powered Issue Reporter
-        </h2>
-        <SmartCamera />
       </div>
     </div>
   );
