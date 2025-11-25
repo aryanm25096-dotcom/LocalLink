@@ -1,8 +1,8 @@
 'use client';
 
-import CitizenHome from '@/components/citizen/CitizenHome';
+import CitizenDashboardV2 from '@/components/citizen/CitizenDashboardV2';
 
 export default function CitizenPage() {
-  return <CitizenHome />;
+  return <CitizenDashboardV2 />;
 }
 

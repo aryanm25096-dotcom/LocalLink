@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Camera, TriangleAlert, Trash2, Droplets, Lightbulb, Home, FileText, User } from 'lucide-react';
 import { useStore } from '@/lib/store';
 
-export default function CitizenHome() {
+export default function CitizenDashboardV2() {
     const { reports, userPoints } = useStore();
 
     return (
