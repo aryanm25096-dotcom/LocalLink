@@ -30,7 +30,7 @@ export function CameraScreen({
 
     const onNavigate = (screen: string) => {
         if (screen === 'landing') router.push('/citizen');
-        if (screen === 'result') router.push('/citizen/report/result');
+        if (screen === 'result') router.push('/citizen/result');
     };
 
     // Load TensorFlow model

@@ -1,4 +1,4 @@
-import { CheckCircle, MapPin, Clock, ArrowLeft, Sparkles, AlertTriangle, ChevronRight, Loader2 } from 'lucide-react';
+import { CheckCircle, MapPin, Clock, ArrowLeft, Sparkles, AlertTriangle, ChevronRight, Loader2, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ImageWithFallback } from '@/components/ui/image-with-fallback';
 import { useRouter } from 'next/navigation';
@@ -57,9 +57,9 @@ export function ClassificationResult({ capturedImage: propImage }: Classificatio
     const confidence = 98; // Mock confidence as it's not in the store yet
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white relative overflow-hidden">
+        <div className="min-h-screen bg-[#020617] text-white relative overflow-hidden pb-20">
             {/* Full Width Header Image */}
-            <div className="relative w-full h-[45vh]">
+            <div className="relative w-full h-[40vh]">
                 <ImageWithFallback
                     src={displayImage}
                     alt="Captured issue"
@@ -76,76 +76,79 @@ export function ClassificationResult({ capturedImage: propImage }: Classificatio
                     >
                         <ArrowLeft className="w-6 h-6" />
                     </Button>
-                    <div className="bg-red-500/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg animate-in slide-in-from-top-4">
-                        <AlertTriangle className="w-4 h-4 fill-white" />
-                        <span className="font-bold text-sm tracking-wide uppercase">Reported Issue</span>
+                    <div className="bg-emerald-500/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg animate-in slide-in-from-top-4">
+                        <CheckCircle className="w-4 h-4 fill-white text-emerald-600" />
+                        <span className="font-bold text-sm tracking-wide uppercase">Analysis Complete</span>
                     </div>
                 </div>
             </div>
 
-            {/* Overlapping Content Card */}
-            <div className="relative -mt-10 px-4 pb-8 z-10">
+            {/* Content Container */}
+            <div className="relative -mt-10 px-4 z-10 space-y-4">
+
+                {/* Main Result Card */}
                 <div className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-
-                    {/* Title Section */}
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-5 h-5 text-emerald-400" />
-                            <span className="text-emerald-400 font-medium text-sm uppercase tracking-wider">AI Analysis Complete</span>
-                        </div>
-                        <h1 className="text-3xl font-bold text-white mb-2">{categoryName} Detected</h1>
-                        <p className="text-slate-400">{report.description}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-5 h-5 text-emerald-400" />
+                        <span className="text-emerald-400 font-medium text-sm uppercase tracking-wider">AI Confidence: {confidence}%</span>
                     </div>
+                    <h1 className="text-3xl font-bold text-white mb-2">{categoryName}</h1>
+                    <p className="text-slate-400 mb-6">{report.description}</p>
 
-                    {/* Confidence Score Visualization */}
-                    <div className="mb-8 bg-slate-900/50 rounded-2xl p-5 border border-white/5">
-                        <div className="flex justify-between items-end mb-3">
+                    {/* Timeline / Status */}
+                    <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+                        <div className="relative flex gap-4">
+                            <div className="w-6 h-6 rounded-full bg-emerald-500 border-4 border-[#0f172a] z-10 flex-shrink-0" />
                             <div>
-                                <p className="text-slate-400 text-sm mb-1">AI Confidence Score</p>
-                                <p className="text-2xl font-bold text-white">{confidence}% <span className="text-sm font-normal text-slate-500">Match</span></p>
-                            </div>
-                            <div className="text-right">
-                                <span className="inline-block w-3 h-3 bg-emerald-500 rounded-full animate-pulse mr-2"></span>
-                                <span className="text-emerald-400 text-sm font-medium">Verified</span>
+                                <p className="text-white font-medium text-sm">Issue Reported</p>
+                                <p className="text-slate-500 text-xs">Just now</p>
                             </div>
                         </div>
-                        <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full w-[98%] shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                        </div>
-                    </div>
-
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-1 gap-4 mb-8">
-                        <div className="flex items-center gap-4 p-4 bg-slate-900/30 rounded-2xl border border-white/5">
-                            <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
-                                <MapPin className="w-6 h-6" />
-                            </div>
+                        <div className="relative flex gap-4">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 border-4 border-[#0f172a] z-10 flex-shrink-0 animate-pulse" />
                             <div>
-                                <p className="text-slate-400 text-xs uppercase tracking-wide">Location</p>
-                                <p className="text-white font-medium">
-                                    {report.location ? `${report.location.lat.toFixed(4)}, ${report.location.lng.toFixed(4)}` : 'Location not available'}
-                                </p>
+                                <p className="text-white font-medium text-sm">Auto-Routed to {report.department}</p>
+                                <p className="text-slate-500 text-xs">Processing...</p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-4 p-4 bg-slate-900/30 rounded-2xl border border-white/5">
-                            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400">
-                                <Clock className="w-6 h-6" />
-                            </div>
+                        <div className="relative flex gap-4 opacity-50">
+                            <div className="w-6 h-6 rounded-full bg-slate-700 border-4 border-[#0f172a] z-10 flex-shrink-0" />
                             <div>
-                                <p className="text-slate-400 text-xs uppercase tracking-wide">Status</p>
-                                <p className="text-white font-medium">Auto-Routed to {report.department}</p>
+                                <p className="text-white font-medium text-sm">Estimated Resolution</p>
+                                <p className="text-slate-500 text-xs">2-3 Days</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Action Button */}
+                {/* Location Card */}
+                <div className="bg-[#0f172a] border border-white/10 rounded-3xl p-4 shadow-lg flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 flex-shrink-0">
+                        <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-slate-400 text-xs uppercase tracking-wide">Location</p>
+                        <p className="text-white font-medium text-sm">
+                            {report.location ? `${report.location.lat.toFixed(4)}, ${report.location.lng.toFixed(4)}` : 'Location not available'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-3 pt-2">
                     <Button
                         onClick={() => onNavigate('credits')}
-                        className="w-full h-16 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-900/20 flex items-center justify-between px-8 group transition-all hover:scale-[1.02]"
+                        className="h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold shadow-lg shadow-blue-900/20"
                     >
-                        <span>Track Status</span>
-                        <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                        Track Status
+                    </Button>
+                    <Button
+                        onClick={() => onNavigate('landing')}
+                        variant="outline"
+                        className="h-14 border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold"
+                    >
+                        <Home className="w-5 h-5 mr-2" />
+                        Back Home
                     </Button>
                 </div>
             </div>
