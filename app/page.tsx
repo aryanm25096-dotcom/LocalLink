@@ -94,7 +94,13 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="py-8 text-center border-t border-white/5 bg-[#020617]/50 backdrop-blur-lg">
+      <footer className="py-8 text-center border-t border-white/5 bg-[#020617]/50 backdrop-blur-lg w-full mt-auto">
+        <div className="flex justify-center gap-6 mb-4 text-sm text-slate-400">
+          <Link href="/about" className="hover:text-blue-400 transition-colors">About</Link>
+          <Link href="/how-it-works" className="hover:text-blue-400 transition-colors">How It Works</Link>
+          <Link href="/technology" className="hover:text-blue-400 transition-colors">Technology</Link>
+          <Link href="/contact" className="hover:text-blue-400 transition-colors">Contact</Link>
+        </div>
         <p className="text-slate-600 text-sm font-medium tracking-widest uppercase">
           Built by Team LocalLink © 2025
         </p>
