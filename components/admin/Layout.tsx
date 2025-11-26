@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -56,8 +58,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 key={item.path}
                 href={item.path}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${isActive
-                    ? "bg-[#E8F0FE] text-[#0A66C2]"
-                    : "text-[#0F172A]/60 hover:bg-[#F4F5F7] hover:text-[#0F172A]"
+                  ? "bg-[#E8F0FE] text-[#0A66C2]"
+                  : "text-[#0F172A]/60 hover:bg-[#F4F5F7] hover:text-[#0F172A]"
                   }`}
               >
                 <Icon className="w-5 h-5" />
