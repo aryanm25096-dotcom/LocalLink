@@ -1,75 +1,78 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface Report {
     id: string;
-    image: string;
-    category: 'Agriculture' | 'Civic_Infrastructure' | 'Sanitation' | 'Unknown';
-    severity: number;
-    description: string;
-    location: {
-        lat: number;
-        lng: number;
-    } | null;
-    timestamp: number;
-    status: 'pending' | 'in-progress' | 'resolved';
+    category: string;
+    location: string;
+    status: 'pending' | 'in-progress' | 'resolved' | 'rejected';
+    image: string | null;
+    timestamp: string;
     department: string;
+    description?: string;
+    severity?: 'low' | 'medium' | 'high';
 }
 
-interface Store {
+interface StoreState {
     reports: Report[];
-    credits: number;
     userPoints: number;
     addReport: (report: Omit<Report, 'id' | 'timestamp' | 'status'>) => void;
     updateStatus: (id: string, status: Report['status']) => void;
-    addPoints: (amount: number) => void;
-    resetStore: () => void;
 }
 
-export const useStore = create<Store>()(
-    persist(
-        (set) => ({
-            reports: [],
-            credits: 0,
-            userPoints: 0,
-            addReport: (report) =>
-                set((state) => ({
-                    reports: [
-                        {
-                            ...report,
-                            id: Math.random().toString(36).substring(7),
-                            timestamp: Date.now(),
-                            status: 'pending',
-                        },
-                        ...state.reports,
-                    ],
-                })),
-            updateStatus: (id, status) =>
-                set((state) => {
-                    const isResolving = status === 'resolved';
-                    // Find if the report was not already resolved to prevent double counting
-                    const report = state.reports.find(r => r.id === id);
-                    const wasAlreadyResolved = report?.status === 'resolved';
-
-                    const pointsToAdd = (isResolving && !wasAlreadyResolved) ? 50 : 0;
-
-                    return {
-                        reports: state.reports.map((report) =>
-                            report.id === id ? { ...report, status } : report
-                        ),
-                        credits: state.credits + pointsToAdd,
-                        userPoints: state.userPoints + pointsToAdd,
-                    };
-                }),
-            addPoints: (amount) => set((state) => ({
-                credits: state.credits + amount,
-                userPoints: state.userPoints + amount
-            })),
-            resetStore: () => set({ reports: [], credits: 0, userPoints: 0 }),
-        }),
+export const useStore = create<StoreState>((set) => ({
+    reports: [
         {
-            name: 'locallink-storage',
-            storage: createJSONStorage(() => localStorage),
-        }
-    )
-);
+            id: '1',
+            category: 'Pothole',
+            location: 'Main St & 5th Ave',
+            status: 'pending',
+            image: null,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+            department: 'Roads',
+            description: 'Large pothole in the middle of the intersection',
+            severity: 'medium',
+        },
+        {
+            id: '2',
+            category: 'Garbage',
+            location: 'Central Park Entrance',
+            status: 'in-progress',
+            image: null,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+            department: 'Sanitation',
+            description: 'Overflowing trash bins',
+            severity: 'low',
+        },
+        {
+            id: '3',
+            category: 'Street Light',
+            location: 'Elm St',
+            status: 'resolved',
+            image: null,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+            department: 'Energy',
+            description: 'Street light flickering',
+            severity: 'low',
+        },
+    ],
+    userPoints: 150,
+    addReport: (report) =>
+        set((state) => ({
+            reports: [
+                {
+                    ...report,
+                    id: Math.random().toString(36).substring(7),
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                },
+                ...state.reports,
+            ],
+            userPoints: state.userPoints + 10, // Reward for reporting
+        })),
+    updateStatus: (id, status) =>
+        set((state) => ({
+            reports: state.reports.map((r) =>
+                r.id === id ? { ...r, status } : r
+            ),
+        })),
+}));
