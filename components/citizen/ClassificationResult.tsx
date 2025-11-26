@@ -2,12 +2,15 @@ import { CheckCircle, MapPin, Clock, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
+import { Report } from "@/lib/store";
+
 interface ClassificationResultProps {
   onNavigate: (screen: string) => void;
   capturedImage: string;
+  report?: Report;
 }
 
-export function ClassificationResult({ onNavigate, capturedImage }: ClassificationResultProps) {
+export function ClassificationResult({ onNavigate, capturedImage, report }: ClassificationResultProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#E8F1FB] to-white">
       {/* Header */}
@@ -46,13 +49,13 @@ export function ClassificationResult({ onNavigate, capturedImage }: Classificati
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="opacity-90 mb-2">Category Detected</p>
-                <h3>Road Hazard — Deep Asphalt Crack</h3>
+                <h3>{report?.category || "Analyzing..."}</h3>
               </div>
               <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                <p>High Priority</p>
+                <p className="capitalize">{report?.severity || "Medium"} Priority</p>
               </div>
             </div>
-            
+
             {/* Confidence Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -74,7 +77,7 @@ export function ClassificationResult({ onNavigate, capturedImage }: Classificati
               </div>
               <div>
                 <p className="text-[#0F172A] mb-1">Auto-Routed To</p>
-                <p className="text-gray-600">Public Works Department</p>
+                <p className="text-gray-600">{report?.department || "General"} Department</p>
                 <p className="text-gray-400 mt-1">Expected response: 2-3 business days</p>
               </div>
             </div>
@@ -86,7 +89,7 @@ export function ClassificationResult({ onNavigate, capturedImage }: Classificati
               </div>
               <div>
                 <p className="text-[#0F172A] mb-1">Location</p>
-                <p className="text-gray-600">1247 Market St, San Francisco</p>
+                <p className="text-gray-600">{report?.location || "Detected Location"}</p>
                 <p className="text-gray-400 mt-1">Coordinates: 37.7749° N, 122.4194° W</p>
               </div>
             </div>
@@ -107,7 +110,7 @@ export function ClassificationResult({ onNavigate, capturedImage }: Classificati
         {/* AI Model Attribution */}
         <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
           <p className="text-center text-gray-500">
-            Identified using <span className="text-[#0A66C2]">Gemini Vision</span> • 
+            Identified using <span className="text-[#0A66C2]">Gemini Vision</span> •
             Processed in 1.2s • Carbon neutral inference
           </p>
         </div>
